@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>Employee Details</title>
+</head>
+<body>
+<center>
+Employee Details<br><br>
+<table border="1">
+<tr>
+<th>Employee No.</th>
+<th>Employee Name</th>
+<th>Salary</th>
+</tr>
+#foreach ($list in $lists)
+<tr>
+<td>$list.EmpNo</td>
+<td>$list.EmpName</td>
+<td>$list.Salary</td>
+</tr>
+#end
+</table>
+</center>
+</body>
+<html> 

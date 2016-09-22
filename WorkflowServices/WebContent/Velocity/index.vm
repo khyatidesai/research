@@ -1,0 +1,11 @@
+<html>
+<head>
+<title>InputSalary</title>
+</head>
+<body>
+<form method=post action="print.html">
+Input Salary : <input type = "text" name="salary" /><br>
+<input type = "submit"/>
+</form>
+</body>
+</html>
