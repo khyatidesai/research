@@ -3,23 +3,34 @@ package com.springmvc.service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.springmvc.domain.Register;
+import com.springmvc.domain.RegisterTemp;
+import com.springmvc.domain.repo.RegisterRepo;
+import com.springmvc.domain.repo.RegisterTempRepo;
 import com.springmvc.model.User;
 
 @Service("userService")
-public class UserServiceImpl implements UserService{
-	
-	private static final AtomicLong counter = new AtomicLong();
+public class UserServiceImpl implements UserService, InitializingBean{
 	
 	private static List<User> users;
 	
-	static{
-		users= populateDummyUsers();
+	@Autowired
+	private RegisterTempRepo rtRepo;
+	
+	@Autowired
+	private RegisterRepo rREpo;
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		System.out.println("populating users");
+		users = populateUsers();
 	}
-
+	
 	public List<User> findAllUsers() {
 		return users;
 	}
@@ -43,13 +54,30 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	public void saveUser(User user) {
-		user.setId(counter.incrementAndGet());
-		users.add(user);
+		
+		RegisterTemp rt = rtRepo.save(user.registerTemp());
+		user.setId(rt.getId());
+		users = populateUsers();
+	}
+	
+	public void updateRegister(User user) {
+
+		RegisterTemp rt = user.registerTemp();
+		Register r = new Register();
+		r.setAddress(rt.getAddress());
+		r.setEmail(rt.getEmail());
+		r.setId(rt.getId());
+		r.setIsActive(true);
+		r.setName(rt.getName());
+		rREpo.save(r);
+
+		rt.setIsActive(false);
+		rtRepo.save(rt);
 	}
 
 	public void updateUser(User user) {
-		int index = users.indexOf(user);
-		users.set(index, user);
+		rtRepo.save(user.registerTemp());
+		users = populateUsers();
 	}
 
 	public void deleteUserById(long id) {
@@ -70,12 +98,23 @@ public class UserServiceImpl implements UserService{
 		users.clear();
 	}
 
-	private static List<User> populateDummyUsers(){
-		List<User> users = new ArrayList<User>();
-		users.add(new User(counter.incrementAndGet(),"Sam", "Mumbai", "sam@abc.com"));
-		users.add(new User(counter.incrementAndGet(),"Khyati", "Thane", "khyati@abc.com"));
-		users.add(new User(counter.incrementAndGet(),"Seema", "Pune", "pune@abc.com"));
-		return users;
+	private List<User> populateUsers() {
+		if(users!=null)
+			users.clear();
+		List<RegisterTemp> wfentries = rtRepo.findByIsActive(true);
+		List<User> lstUser = new ArrayList<User>();
+
+		for (RegisterTemp rt : wfentries) {
+			User user = new User();
+			user.setAddress(rt.getAddress());
+			user.setEmail(rt.getEmail());
+			user.setId(rt.getId());
+			user.setUsername(rt.getName());
+			lstUser.add(user);
+
+		}
+		
+		return lstUser;
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.springmvc.model;
 
+import com.springmvc.domain.RegisterTemp;
+
 public class User {
 
 	private long id;
@@ -52,6 +54,20 @@ public class User {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public RegisterTemp registerTemp() {
+
+		RegisterTemp rt = new RegisterTemp();
+		rt.setAddress(address);
+		rt.setEmail(email);
+		//rt.setId((int) id);
+		rt.setUserId((int) id);
+		rt.setIsActive(true);
+		rt.setName(username);
+
+		return rt;
+
+	}
 
 	@Override
 	public int hashCode() {
@@ -81,6 +97,6 @@ public class User {
 				+ ", email=" + email + "]";
 	}
 	
-
+	
 	
 }

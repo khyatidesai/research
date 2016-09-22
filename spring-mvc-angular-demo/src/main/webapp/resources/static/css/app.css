@@ -4,7 +4,7 @@ body, #mainWrapper {
 }
 
 body, .form-control {
-	font-size: 12px !important;
+	font-size: 14px !important;
 }
 
 .form-control {
@@ -12,7 +12,7 @@ body, .form-control {
 }
 
 #mainWrapper {
-	height: 70%;
+	height: 80%;
 	background-color: rgb(245, 245, 245);
 }
 
@@ -57,7 +57,7 @@ body, .form-control {
 
 .home-section {
 	float: left;
-	width: 10%;
+	width: 20%;
 }
 
 .section {

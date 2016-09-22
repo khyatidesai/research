@@ -6,20 +6,18 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Spring and Angularjs Tutorial</title>
+    <title>Workflow POC</title>
     <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=2">
     <link rel="stylesheet" href="./resources/static/css/app.css">
     <link rel="stylesheet" href="./resources/static/css/bootstrap.css">
 </head>
 <body>
-<h2>Spring,Angularjs Tutorial & HTML5</h2>
 <div class="home-section">
     <ul class="menu-list">
-    	<li><a href="#/usermanagement">Register Users</a></li>
-    	<li><a href="#/viewusers">View Users</a></li>
-        <li><a href="#/gallery">Photo Gallery</a></li>
-        <li><a href="#/contactus">Contact</a></li>
+    	<li><a href="#/usermanagement">Register Users(Role:-Entry)</a></li>
+    	<li><a href="#/viewusers">View Users(Role:-Reviewer)</a></li>
+       <li><a href="#/viewusersa">View Users(Role:-Approver)</a></li>
     </ul>
 </div>
 <div ng-view></div>

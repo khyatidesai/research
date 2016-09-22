@@ -22,6 +22,11 @@ app.config(function($routeProvider){
         	workflowId: 1,
         	templateUrl: 'resources/static/views/usermanagement.html',
         })
+        .when('/viewusersa',{
+        	roleId:3,
+        	workflowId: 1,
+        	templateUrl: 'resources/static/views/usermanagement.html',
+        })
         .otherwise(
             { redirectTo: '/'}
         );

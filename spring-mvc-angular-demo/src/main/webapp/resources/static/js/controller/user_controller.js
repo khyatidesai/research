@@ -13,10 +13,13 @@ app.controller('UserController', ['$scope','$route', '$compile', 'UserService','
     var self = this;
     $scope.headingTitle = "UserRegistration";
     $scope.wActive=true;
+    $scope.canUpdate=true;
+    
+    var status='';
     var roleId =$route.current.roleId; 
     var workflowId =$route.current.workflowId; 
-    var workflowId =$route.current.workflowId; 
-    self.user={id:null,username:'',address:'',email:''};
+
+    self.user={id:null,username:'',address:'',email:'', status:''};
     self.workflow={actionId:null,workflowId:workflowId,jobTrackingId:null,username:"Khyati", roleId: roleId, referenceCd: null, referenceCdList: null};
     var workresp={jobTrackingId:null, actions: null, referenceCd:null, message:null}
     self.users=[];
@@ -36,6 +39,9 @@ app.controller('UserController', ['$scope','$route', '$compile', 'UserService','
             .then(
             function(d) {
                 self.users = d;
+                angular.forEach(self.users, function(user) {                	
+                    user.status =getStatus(user.id);
+                  });
             },
             function(errResponse){
                 console.error('Error while fetching Users');
@@ -56,15 +62,17 @@ app.controller('UserController', ['$scope','$route', '$compile', 'UserService','
     }
     
     function workflowSubmit(actionId, jobTrackingId, refId){
+    	
     	self.workflow.actionId=actionId;
     	self.workflow.jobTrackingId=jobTrackingId;
     	self.workflow.referenceCd=refId;
     	
     	WorkflowService.updateAction(self.workflow).then(
     			function(d){
+    				console.log(d);
     				$scope.wActive=false;
-    				removeWorkflowButtons();
-    				angular.element(document.getElementById('space-for-workflow-buttons')).append($compile("<button type=\"button\" class='btn btn-primary btn-sm' ng-disabled=\"!wActive\">"+d.actions[0].buttonText+"</button>")($scope))
+    				showWorkFlowButtons(d.id);
+    				//alert(d.isComplete);
     			}
     		);
     	
@@ -80,18 +88,7 @@ app.controller('UserController', ['$scope','$route', '$compile', 'UserService','
             WorkflowService.save(self.workflow)
             	.then(
             		function(e){
-            			console.log(e);
-            			removeWorkflowButtons();
-            			if(e.message != null){
-            				 console.error(e.message);
-            			}else{
-            			$scope.wActive = true;
-            			var actions = e.actions;
-            			for(var i=0; i<actions.length;i++){
-            				angular.element(document.getElementById('space-for-workflow-buttons')).append($compile("<button type=\"button\" class='btn btn-primary btn-sm' ng-show=\"wActive\" ng-click=\"ctrl.workflowSubmit("+actions[i].actionId+","+e.jobTrackingId+","+e.referenceCd+")\">"+actions[i].buttonText+"</button>")($scope))
-  
-            			}
-            			}
+            			showWorkFlowButtons(d.id);
             		}
             );
             
@@ -105,7 +102,18 @@ app.controller('UserController', ['$scope','$route', '$compile', 'UserService','
     function updateUser(user, id){
         UserService.updateUser(user, id)
             .then(
-            fetchAllUsers,
+            		function(d) {
+                        self.user=d;
+                        self.workflow.referenceCd=d.id;
+                        fetchAllUsers();
+                        WorkflowService.save(self.workflow)
+                        	.then(
+                        		function(e){
+                        			showWorkFlowButtons(d.id);
+                        		}
+                        );
+                        
+                        },
             function(errResponse){
                 console.error('Error while updating User');
             }
@@ -157,7 +165,27 @@ app.controller('UserController', ['$scope','$route', '$compile', 'UserService','
     	element.empty();
     }
 
+    function getStatus(id){
+    	
+    	var workflow = self.workflow;
+    	workflow.referenceCd=id;
+    	if(id>3){
+   	 	WorkflowService.view(workflow)
+    	.then(
+    		function(e){  			
+    			console.log(e)   			
+    			$scope.wActive=false;
+    			status=e.actions[0].buttonText;
+    		},
+            function(errResponse){
+    			console.error(errResponse);  
+                console.error('Error while fetching workflow details');
+            });
+    	}
+    }
+    
     function showWorkFlowButtons(id){
+    	if(id>3){
     	removeWorkflowButtons();
     	self.workflow.referenceCd=id;
     	 WorkflowService.view(self.workflow)
@@ -168,7 +196,11 @@ app.controller('UserController', ['$scope','$route', '$compile', 'UserService','
      				 console.error(e.message);
      			}else{
      			$scope.wActive = e.isActive;
-     			alert(e.isActive)
+     			if(e.actions[0].actionId == 1){
+     				$scope.canUpdate = true;
+     			}else{
+     				$scope.canUpdate = false;
+     			}
      			if(e.isActive == true){
      			var actions = e.actions;
      			for(var i=0; i<actions.length;i++){
@@ -176,15 +208,17 @@ app.controller('UserController', ['$scope','$route', '$compile', 'UserService','
      			}
      			}else{
      				$scope.wActive=false;
-    				//angular.element(document.getElementById('space-for-workflow-buttons')).append($compile("<button type=\"button\" class='btn btn-primary btn-sm' ng-disabled=\"!wActive\">"+e.actions[0].buttonText+"</button>")($scope))
+     				if(e.actions[0])
+    				angular.element(document.getElementById('space-for-workflow-buttons')).append($compile("<button type=\"button\" class='btn btn-primary btn-sm' ng-disabled=\"!wActive\">"+e.actions[0].buttonText+"</button>")($scope))
     			
      			}
      			}
      		});
+    	}
     }
 
     function reset(){
-        self.user={id:null,username:'',address:'',email:''};
+        self.user={id:null,username:'',address:'',email:'', status:''};
         $scope.wActive = false;
         removeWorkflowButtons();
         $scope.myForm.$setPristine(); //reset Form
